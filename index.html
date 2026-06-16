@@ -1,0 +1,2261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0c5cc7" />
+    <title>RuTIME | Control de rutas</title>
+    <style>
+        :root {
+            --navy: #03152e;
+            --blue: #0c5cc7;
+            --blue-2: #1f7cff;
+            --aqua: #18c6b4;
+            --aqua-2: #dffdf8;
+            --pink: #ff5ca8;
+            --pink-soft: #fff0f7;
+            --yellow: #ffbf47;
+            --green: #12a874;
+            --red: #df3c4f;
+            --orange: #f59e0b;
+            --bg: #eef7ff;
+            --card: #ffffff;
+            --soft: #f6fbff;
+            --line: #bfd5ec;
+            --line-strong: #8fb2d5;
+            --text: #112236;
+            --muted: #5b7087;
+            --shadow: 0 26px 70px rgba(4, 28, 58, 0.16);
+            --shadow-soft: 0 14px 34px rgba(4, 28, 58, 0.10);
+            --radius-xl: 32px;
+            --radius-lg: 24px;
+            --radius: 18px;
+            --font: Inter, Segoe UI, Roboto, Arial, sans-serif;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: var(--font);
+            color: var(--text);
+            background:
+                radial-gradient(circle at 6% 0%, rgba(24,198,180,.24), transparent 34%),
+                radial-gradient(circle at 94% 4%, rgba(255,92,168,.20), transparent 34%),
+                linear-gradient(135deg, #eaf6ff 0%, #f7fbff 45%, #fff2f8 100%);
+            padding: 18px;
+        }
+
+        button, input, select, textarea { font: inherit; }
+
+        button {
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .app-shell {
+            width: min(1360px, 100%);
+            min-height: calc(100vh - 36px);
+            margin: 0 auto;
+            background: rgba(255,255,255,.78);
+            border: 2px solid rgba(255,255,255,.9);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            backdrop-filter: blur(18px);
+        }
+
+        .topbar {
+            min-height: 98px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 18px;
+            padding: 16px 22px;
+            background: linear-gradient(90deg, rgba(3,21,46,.98), rgba(12,92,199,.95));
+            color: #fff;
+            border-bottom: 5px solid var(--aqua);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            min-width: 210px;
+        }
+
+        .brand-mark {
+            width: 56px;
+            height: 56px;
+            border-radius: 19px;
+            display: grid;
+            place-items: center;
+            font-size: 29px;
+            font-weight: 1000;
+            color: #fff;
+            background: linear-gradient(135deg, var(--aqua), var(--blue-2), var(--pink));
+            border: 2px solid rgba(255,255,255,.55);
+            box-shadow: 0 12px 28px rgba(0,0,0,.22);
+        }
+
+        .brand-text b {
+            display: block;
+            font-size: 34px;
+            line-height: 1;
+            letter-spacing: .3px;
+        }
+
+        .brand-text span {
+            display: block;
+            font-size: 14px;
+            opacity: .88;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        .nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav button,
+        .user-pill button {
+            min-height: 50px;
+            border-radius: 999px;
+            padding: 0 18px;
+            border: 2px solid rgba(255,255,255,.64);
+            background: rgba(255,255,255,.12);
+            color: #fff;
+            font-size: 17px;
+            font-weight: 950;
+            cursor: pointer;
+            transition: .16s transform, .16s background, .16s border-color;
+        }
+
+        .nav button:hover,
+        .user-pill button:hover {
+            background: rgba(255,255,255,.24);
+            border-color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .nav button.active {
+            background: #fff;
+            color: var(--blue);
+            border-color: #fff;
+            box-shadow: 0 8px 18px rgba(0,0,0,.18);
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+            text-align: right;
+        }
+
+        .welcome {
+            border: 2px solid rgba(255,255,255,.35);
+            background: rgba(255,255,255,.13);
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-weight: 950;
+            font-size: 16px;
+            line-height: 1.25;
+        }
+
+        .welcome small {
+            display: block;
+            opacity: .86;
+            font-size: 13px;
+            margin-top: 3px;
+        }
+
+        .clockbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 14px 22px;
+            background: linear-gradient(90deg, rgba(24,198,180,.14), rgba(31,124,255,.12), rgba(255,92,168,.10));
+            border-bottom: 1px solid var(--line);
+        }
+
+        .clock {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 48px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: #fff;
+            border: 2px solid var(--line);
+            box-shadow: var(--shadow-soft);
+            color: var(--navy);
+            font-weight: 1000;
+            font-size: 17px;
+        }
+
+        .clock-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .page {
+            padding: 24px;
+        }
+
+        .screen-card {
+            min-height: 610px;
+            border: 2px solid rgba(143,178,213,.72);
+            background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,252,255,.94));
+            border-radius: 30px;
+            padding: 24px;
+            box-shadow: inset 0 1px 0 #fff;
+        }
+
+        .section-center {
+            max-width: 720px;
+            margin: 20px auto;
+        }
+
+        .page-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        h1.title {
+            margin: 0 0 8px;
+            font-size: clamp(31px, 4vw, 46px);
+            line-height: 1.04;
+            color: var(--navy);
+            font-weight: 1000;
+            letter-spacing: -.5px;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--muted);
+            font-size: 19px;
+            line-height: 1.45;
+            font-weight: 750;
+        }
+
+        .grid-3,
+        .grid-2,
+        .form-grid,
+        .route-meta {
+            display: grid;
+            gap: 16px;
+        }
+
+        .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .field.full { grid-column: 1 / -1; }
+        .route-meta { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+        .card,
+        .stat,
+        .menu-card,
+        .route-card {
+            background: #fff;
+            border: 2px solid var(--line);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .card { padding: 22px; }
+
+        .menu-card {
+            padding: 22px;
+            min-height: 150px;
+            cursor: pointer;
+            transition: .16s transform, .16s border-color, .16s box-shadow;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--blue-2);
+            box-shadow: 0 20px 42px rgba(4,28,58,.16);
+        }
+
+        .menu-icon {
+            width: 62px;
+            height: 62px;
+            border-radius: 22px;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-size: 29px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--aqua), var(--blue-2));
+            border: 2px solid rgba(255,255,255,.7);
+        }
+
+        .menu-card:nth-child(2n) .menu-icon { background: linear-gradient(135deg, var(--blue-2), var(--pink)); }
+        .menu-card:nth-child(3n) .menu-icon { background: linear-gradient(135deg, var(--orange), var(--aqua)); }
+
+        .menu-card h2,
+        .card h2,
+        .route-card h2 {
+            margin: 0 0 8px;
+            font-size: 26px;
+            color: var(--navy);
+            font-weight: 1000;
+        }
+
+        .menu-card p,
+        .small {
+            margin: 0;
+            color: var(--muted);
+            font-size: 17px;
+            line-height: 1.4;
+            font-weight: 750;
+        }
+
+        .stat {
+            padding: 18px;
+            min-height: 114px;
+            border-left: 8px solid var(--aqua);
+        }
+
+        .stat:nth-child(2) { border-left-color: var(--blue-2); }
+        .stat:nth-child(3) { border-left-color: var(--pink); }
+        .stat:nth-child(4) { border-left-color: var(--orange); }
+
+        .stat b {
+            display: block;
+            font-size: 36px;
+            line-height: 1;
+            color: var(--navy);
+        }
+
+        .stat span {
+            display: block;
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 17px;
+            font-weight: 850;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field label {
+            color: #33495f;
+            font-size: 17px;
+            font-weight: 1000;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            min-height: 56px;
+            border: 2px solid var(--line-strong);
+            border-radius: 18px;
+            background: #fbfdff;
+            color: var(--text);
+            padding: 13px 15px;
+            outline: none;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .field textarea {
+            min-height: 110px;
+            resize: vertical;
+            line-height: 1.35;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: var(--blue-2);
+            box-shadow: 0 0 0 5px rgba(31,124,255,.15);
+            background: #fff;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .btn {
+            min-height: 58px;
+            border: 3px solid rgba(3,21,46,.12);
+            border-bottom-width: 5px;
+            border-radius: 18px;
+            padding: 0 22px;
+            background: linear-gradient(135deg, var(--aqua), var(--blue-2));
+            color: #fff;
+            font-size: 18px;
+            font-weight: 1000;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(31,124,255,.18);
+            transition: .14s transform, .14s filter, .14s box-shadow;
+        }
+
+        .btn:hover { filter: brightness(1.04); box-shadow: 0 14px 26px rgba(31,124,255,.22); }
+        .btn:active { transform: translateY(2px); border-bottom-width: 3px; }
+
+        .btn.block { width: 100%; justify-content: center; }
+        .btn.small-btn { min-height: 44px; padding: 0 14px; border-radius: 14px; font-size: 15px; }
+        .btn.gray { background: #eaf2fb; color: #1b2c41; box-shadow: none; border-color: #c8d7e8; }
+        .btn.pink { background: linear-gradient(135deg, var(--blue-2), var(--pink)); }
+        .btn.green { background: linear-gradient(135deg, var(--green), var(--aqua)); }
+        .btn.orange { background: linear-gradient(135deg, var(--orange), #ff7a59); }
+        .btn.red { background: linear-gradient(135deg, var(--red), #ff7a59); }
+        .btn.dark { background: linear-gradient(135deg, var(--navy), var(--blue)); }
+        .btn:disabled {
+            cursor: not-allowed;
+            color: #6d7d8d;
+            background: #e9eef5;
+            border-color: #ccd8e6;
+            box-shadow: none;
+            filter: none;
+        }
+
+        .msg {
+            margin-top: 16px;
+            border-radius: 18px;
+            padding: 15px 17px;
+            border: 2px solid #b7ecde;
+            background: #edfffb;
+            color: #075c54;
+            font-size: 17px;
+            font-weight: 900;
+            line-height: 1.35;
+        }
+        .msg.bad { border-color: #ffc7d0; background: #fff1f4; color: #9c1c31; }
+        .msg.warn { border-color: #ffe29b; background: #fff7df; color: #805300; }
+        .msg.info { border-color: #c8d5ff; background: #eef2ff; color: #243a8b; }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 34px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: var(--aqua-2);
+            color: #067367;
+            border: 2px solid #abf4e8;
+            font-size: 14px;
+            font-weight: 1000;
+            white-space: nowrap;
+        }
+        .pill.info { background: #eef2ff; color: #2b45aa; border-color: #cdd8ff; }
+        .pill.warn { background: #fff5d6; color: #815400; border-color: #ffe29b; }
+        .pill.bad { background: #fff1f4; color: #a61c32; border-color: #ffc7d0; }
+        .pill.gray { background: #eef3f8; color: #4b6075; border-color: #d1deeb; }
+
+        .route-card { padding: 22px; margin-bottom: 16px; }
+
+        .route-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .route-top h2 { margin: 0 0 4px; }
+
+        .meta-box {
+            min-height: 88px;
+            border: 2px solid var(--line);
+            border-radius: 18px;
+            background: var(--soft);
+            padding: 13px;
+        }
+
+        .meta-box b {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--navy);
+            font-size: 17px;
+        }
+
+        .meta-box span,
+        .meta-box p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .big-action {
+            width: 100%;
+            min-height: 76px;
+            font-size: 24px;
+            border-radius: 22px;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 18px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 840px;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        th {
+            text-align: left;
+            color: #486078;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            padding: 0 10px;
+            white-space: nowrap;
+        }
+
+        td {
+            background: #f8fbff;
+            border-top: 2px solid var(--line);
+            border-bottom: 2px solid var(--line);
+            padding: 13px 10px;
+            font-size: 16px;
+            font-weight: 800;
+            vertical-align: top;
+        }
+
+        td:first-child { border-left: 2px solid var(--line); border-radius: 16px 0 0 16px; }
+        td:last-child { border-right: 2px solid var(--line); border-radius: 0 16px 16px 0; }
+
+        .empty {
+            border: 3px dashed #c4d8ec;
+            background: #fbfdff;
+            border-radius: 22px;
+            padding: 28px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 19px;
+            font-weight: 900;
+        }
+
+        .danger-zone {
+            border-color: #ffc7d0;
+            background: #fff8f9;
+        }
+
+        .hidden { display: none !important; }
+
+        .split-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .mini-note {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            border: 2px solid var(--line);
+            border-radius: 16px;
+            padding: 10px 12px;
+            color: var(--muted);
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        @media (max-width: 1080px) {
+            .topbar { grid-template-columns: 1fr; }
+            .brand, .user-pill { justify-content: center; text-align: center; }
+            .grid-3, .grid-2, .form-grid, .route-meta { grid-template-columns: 1fr; }
+        }
+
+        @media (hover: none) {
+            .menu-card:hover { transform: none; box-shadow: var(--shadow-soft); }
+            .nav button:hover, .user-pill button:hover { transform: none; }
+        }
+
+        @media (max-width: 720px) {
+            body { padding: 8px; }
+            .app-shell { min-height: calc(100vh - 16px); border-radius: 22px; }
+            .topbar { padding: 14px; gap: 12px; }
+            .brand-mark { width: 48px; height: 48px; font-size: 24px; border-radius: 16px; }
+            .brand-text b { font-size: 29px; }
+            .brand-text span { font-size: 12px; }
+            .nav, .clock-actions, .actions { width: 100%; }
+            .nav button, .user-pill button, .btn { width: 100%; min-height: 56px; }
+            .welcome { width: 100%; text-align: center; }
+            .clockbar { padding: 12px; }
+            .clock { width: 100%; justify-content: center; text-align: center; border-radius: 18px; font-size: 15px; }
+            .page { padding: 10px; }
+            .screen-card { padding: 14px; border-radius: 22px; min-height: auto; }
+            h1.title { font-size: 30px; }
+            .subtitle { font-size: 17px; }
+            .card, .route-card, .menu-card { padding: 16px; border-radius: 20px; }
+            .menu-card { min-height: 130px; }
+            .menu-card h2, .card h2, .route-card h2 { font-size: 23px; }
+            .field input, .field select, .field textarea { font-size: 17px; min-height: 54px; }
+            .big-action { font-size: 21px; min-height: 72px; }
+            .table-wrap::after {
+                content: 'Desliza la tabla hacia la derecha →';
+                display: block;
+                margin-top: 8px;
+                color: var(--muted);
+                font-weight: 900;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="brand" onclick="app.home()" role="button" tabindex="0">
+                <div class="brand-mark">↻</div>
+                <div class="brand-text">
+                    <b>RuTIME</b>
+                    <span>Control de rutas</span>
+                </div>
+            </div>
+            <nav class="nav" id="mainNav"></nav>
+            <div class="user-pill" id="userBox"></div>
+        </header>
+
+        <section class="clockbar">
+            <div class="clock" id="clock">⏱️ Cargando hora...</div>
+            <div class="clock-actions">
+                <button class="btn gray small-btn" onclick="app.advanceMinutes(10)">+10 min</button>
+                <button class="btn gray small-btn" onclick="app.advanceMinutes(30)">+30 min</button>
+                <button class="btn gray small-btn" onclick="app.resetClockMorning()">Reiniciar 7:50</button>
+            </div>
+        </section>
+
+        <main class="page">
+            <section class="screen-card" id="screen"></section>
+        </main>
+    </div>
+
+    <script>
+        (() => {
+            'use strict';
+
+            const DB_KEY = 'RuTIME_DATABASE_V3_ROLES_SIM';
+            const SESSION_KEY = 'RuTIME_SESSION_V3';
+
+            const roleNames = {
+                supervisor: 'Supervisor',
+                driver: 'Chofer',
+                checker: 'Checador'
+            };
+
+            const defaultDatabase = {
+                users: [],
+                routes: [],
+                attendance: [],
+                checkerLogs: [],
+                tasks: [],
+                systemLogs: [],
+                settings: {
+                    clock: { dayIndex: 0, day: 24, month: 4, year: 2026, minutes: 7 * 60 + 50 }
+                }
+            };
+
+            const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+            let database = loadDatabase();
+            let currentUser = loadSession();
+
+            const screen = document.getElementById('screen');
+            const mainNav = document.getElementById('mainNav');
+            const userBox = document.getElementById('userBox');
+            const clockElement = document.getElementById('clock');
+
+            const app = {
+                home,
+                showLogin,
+                createFirstSupervisor,
+                login,
+                logout,
+                supervisorDashboard,
+                supervisorUsers,
+                createUser,
+                changeUserName,
+                changePassword,
+                toggleUser,
+                deleteUser,
+                supervisorRoutes,
+                createRoute,
+                editRoute,
+                updateRoute,
+                deleteRoute,
+                supervisorTasks,
+                createTask,
+                deleteTask,
+                supervisorReports,
+                supervisorData,
+                exportData,
+                importData,
+                resetAllData,
+                seedDemoData,
+                driverDashboard,
+                driverAttendance,
+                driverAction,
+                showDriverStatusForm,
+                saveDriverStatus,
+                driverReport,
+                driverTasks,
+                completeTask,
+                checkerDashboard,
+                saveCheckerLog,
+                checkerHistory,
+                advanceMinutes,
+                resetClockMorning
+            };
+
+            window.app = app;
+
+            boot();
+
+            function boot() {
+                currentUser = currentUser && database.users.find(user => user.id === currentUser.id && user.active) ? currentUser : null;
+                renderClock();
+                setInterval(tickClock, 1000);
+                home();
+            }
+
+            function loadDatabase() {
+                try {
+                    const saved = localStorage.getItem(DB_KEY);
+                    if (!saved) return structuredClone(defaultDatabase);
+                    const parsed = JSON.parse(saved);
+                    return sanitizeDatabase(parsed);
+                } catch (error) {
+                    console.warn('No se pudo cargar RuTIME:', error);
+                    return structuredClone(defaultDatabase);
+                }
+            }
+
+            function sanitizeDatabase(parsed) {
+                const base = structuredClone(defaultDatabase);
+                return {
+                    ...base,
+                    ...parsed,
+                    users: Array.isArray(parsed.users) ? parsed.users : [],
+                    routes: Array.isArray(parsed.routes) ? parsed.routes : [],
+                    attendance: Array.isArray(parsed.attendance) ? parsed.attendance : [],
+                    checkerLogs: Array.isArray(parsed.checkerLogs) ? parsed.checkerLogs : [],
+                    tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
+                    systemLogs: Array.isArray(parsed.systemLogs) ? parsed.systemLogs : [],
+                    settings: {
+                        ...base.settings,
+                        ...(parsed.settings || {}),
+                        clock: {
+                            ...base.settings.clock,
+                            ...((parsed.settings && parsed.settings.clock) || {})
+                        }
+                    }
+                };
+            }
+
+            function saveDatabase(action = '') {
+                if (action) {
+                    database.systemLogs.unshift({
+                        id: createId(),
+                        action,
+                        userId: currentUser?.id || '',
+                        userName: me()?.name || 'Sistema',
+                        dateText: getDateText(),
+                        realDate: new Date().toISOString()
+                    });
+                    database.systemLogs = database.systemLogs.slice(0, 120);
+                }
+                localStorage.setItem(DB_KEY, JSON.stringify(database));
+            }
+
+            function loadSession() {
+                try {
+                    const id = localStorage.getItem(SESSION_KEY);
+                    if (!id) return null;
+                    return { id };
+                } catch (error) {
+                    return null;
+                }
+            }
+
+            function saveSession(user) {
+                currentUser = user ? { id: user.id } : null;
+                if (user) localStorage.setItem(SESSION_KEY, user.id);
+                else localStorage.removeItem(SESSION_KEY);
+            }
+
+            function me() {
+                if (!currentUser) return null;
+                return database.users.find(user => user.id === currentUser.id && user.active) || null;
+            }
+
+            function hasSupervisor() {
+                return database.users.some(user => user.role === 'supervisor');
+            }
+
+            function createId() {
+                if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+                return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+            }
+
+            function escapeHTML(value) {
+                return String(value ?? '').replace(/[&<>"']/g, char => ({
+                    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+                }[char]));
+            }
+
+            function normalize(value) {
+                return String(value ?? '').trim().toLowerCase();
+            }
+
+            function getValue(id) {
+                const element = document.getElementById(id);
+                return element ? element.value.trim() : '';
+            }
+
+            function byId(id) {
+                return document.getElementById(id);
+            }
+
+            function setScreen(html, active = 'inicio') {
+                renderShell(active);
+                screen.innerHTML = html;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            function renderShell(active = 'inicio') {
+                const user = me();
+                let navItems = [];
+
+                if (!user) {
+                    navItems = [
+                        ['inicio', 'Inicio', 'app.home()'],
+                        ['login', 'Iniciar sesión', 'app.showLogin()']
+                    ];
+                    userBox.innerHTML = '<div class="welcome">RuTIME<small>Acceso por usuario y contraseña</small></div>';
+                } else if (user.role === 'supervisor') {
+                    navItems = [
+                        ['inicio', 'Inicio', 'app.supervisorDashboard()'],
+                        ['usuarios', 'Usuarios', 'app.supervisorUsers()'],
+                        ['rutas', 'Rutas', 'app.supervisorRoutes()'],
+                        ['tareas', 'Tareas', 'app.supervisorTasks()'],
+                        ['reportes', 'Reportes', 'app.supervisorReports()'],
+                        ['datos', 'Datos', 'app.supervisorData()']
+                    ];
+                    userBox.innerHTML = `${userWelcome(user)}<button onclick="app.logout()">Cerrar sesión</button>`;
+                } else if (user.role === 'driver') {
+                    navItems = [
+                        ['inicio', 'Inicio', 'app.driverDashboard()'],
+                        ['asistencia', 'Registrar asistencia', 'app.driverAttendance()'],
+                        ['reporte', 'Ver reporte', 'app.driverReport()'],
+                        ['tareas', 'Ver tareas', 'app.driverTasks()']
+                    ];
+                    userBox.innerHTML = `${userWelcome(user)}<button onclick="app.logout()">Cerrar sesión</button>`;
+                } else if (user.role === 'checker') {
+                    navItems = [
+                        ['inicio', 'Inicio', 'app.checkerDashboard()'],
+                        ['registro', 'Registrar paso', 'app.checkerDashboard()'],
+                        ['historial', 'Historial', 'app.checkerHistory()']
+                    ];
+                    userBox.innerHTML = `${userWelcome(user)}<button onclick="app.logout()">Cerrar sesión</button>`;
+                }
+
+                mainNav.innerHTML = navItems.map(([key, label, action]) => `
+                    <button class="${active === key ? 'active' : ''}" onclick="${action}">${label}</button>
+                `).join('');
+            }
+
+            function userWelcome(user) {
+                return `
+                    <div class="welcome">
+                        RuTIME · Bienvenido ${escapeHTML(roleNames[user.role] || 'Usuario')}
+                        <small>${escapeHTML(user.name)}</small>
+                    </div>
+                `;
+            }
+
+            function requireRole(role) {
+                const user = me();
+                if (!user || user.role !== role) {
+                    showLogin('Primero inicia sesión con el rol correcto.');
+                    return null;
+                }
+                return user;
+            }
+
+            function home() {
+                const user = me();
+                if (user?.role === 'supervisor') return supervisorDashboard();
+                if (user?.role === 'driver') return driverDashboard();
+                if (user?.role === 'checker') return checkerDashboard();
+
+                if (!hasSupervisor()) {
+                    setScreen(`
+                        <div class="section-center">
+                            <div class="page-head">
+                                <div>
+                                    <h1 class="title">Bienvenido a RuTIME</h1>
+                                    <p class="subtitle">Primer uso: crea el supervisor principal. Después ya se entra con usuario y contraseña.</p>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <h2>Crear primer supervisor</h2>
+                                <div class="form-grid">
+                                    <div class="field full">
+                                        <label for="firstName">Nombre completo</label>
+                                        <input id="firstName" placeholder="Ejemplo: Supervisor principal" autocomplete="name" />
+                                    </div>
+                                    <div class="field">
+                                        <label for="firstUser">Usuario</label>
+                                        <input id="firstUser" placeholder="Ejemplo: supervisor" autocomplete="username" />
+                                    </div>
+                                    <div class="field">
+                                        <label for="firstPass">Contraseña</label>
+                                        <input id="firstPass" type="password" placeholder="Mínimo 4 caracteres" autocomplete="new-password" />
+                                    </div>
+                                    <div class="field full">
+                                        <label for="firstPass2">Confirmar contraseña</label>
+                                        <input id="firstPass2" type="password" placeholder="Repite la contraseña" autocomplete="new-password" onkeydown="if(event.key==='Enter') app.createFirstSupervisor()" />
+                                    </div>
+                                </div>
+                                <div class="actions">
+                                    <button class="btn green block" onclick="app.createFirstSupervisor()">Crear supervisor y entrar</button>
+                                </div>
+                                <div id="firstMessage"></div>
+                            </div>
+                        </div>
+                    `, 'login');
+                    return;
+                }
+
+                setScreen(`
+                    <div class="section-center">
+                        <div class="page-head">
+                            <div>
+                                <h1 class="title">RuTIME listo</h1>
+                                <p class="subtitle">Ingresa con tu usuario. El sistema mostrará solo lo que puedes usar.</p>
+                            </div>
+                        </div>
+                        <div class="grid-3">
+                            <div class="menu-card" onclick="app.showLogin()">
+                                <div class="menu-icon">🔐</div>
+                                <h2>Iniciar sesión</h2>
+                                <p>Supervisor, chofer o checador.</p>
+                            </div>
+                            <div class="menu-card" onclick="app.showLogin()">
+                                <div class="menu-icon">🚌</div>
+                                <h2>Chofer</h2>
+                                <p>Asistencia, descanso y reporte.</p>
+                            </div>
+                            <div class="menu-card" onclick="app.showLogin()">
+                                <div class="menu-icon">📍</div>
+                                <h2>Checador</h2>
+                                <p>Registrar paso de rutas.</p>
+                            </div>
+                        </div>
+                    </div>
+                `, 'inicio');
+            }
+
+            function showLogin(note = '') {
+                if (!hasSupervisor()) return home();
+                setScreen(`
+                    <div class="section-center">
+                        <div class="page-head">
+                            <div>
+                                <h1 class="title">Iniciar sesión</h1>
+                                <p class="subtitle">Usa tu usuario y contraseña. RuTIME abre tu panel según tu rol.</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="form-grid">
+                                <div class="field">
+                                    <label for="loginUser">Usuario</label>
+                                    <input id="loginUser" placeholder="Ejemplo: chofer19" autocomplete="username" />
+                                </div>
+                                <div class="field">
+                                    <label for="loginPass">Contraseña</label>
+                                    <input id="loginPass" type="password" placeholder="Tu contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter') app.login()" />
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <button class="btn green block" onclick="app.login()">Entrar</button>
+                            </div>
+                            <div id="loginMessage">${note ? msg(note, 'warn') : ''}</div>
+                        </div>
+                    </div>
+                `, 'login');
+            }
+
+            async function createFirstSupervisor() {
+                const name = getValue('firstName');
+                const username = getValue('firstUser');
+                const pass = getValue('firstPass');
+                const pass2 = getValue('firstPass2');
+                const container = byId('firstMessage');
+
+                if (!name || !username || !pass) return container.innerHTML = msg('Llena nombre, usuario y contraseña.', 'bad');
+                if (pass.length < 4) return container.innerHTML = msg('La contraseña debe tener mínimo 4 caracteres.', 'bad');
+                if (pass !== pass2) return container.innerHTML = msg('Las contraseñas no coinciden.', 'bad');
+                if (database.users.some(user => normalize(user.username) === normalize(username))) return container.innerHTML = msg('Ese usuario ya existe.', 'bad');
+
+                const user = await buildUser({ name, username, password: pass, role: 'supervisor' });
+                database.users.push(user);
+                saveSession(user);
+                saveDatabase('Primer supervisor creado');
+                supervisorDashboard();
+            }
+
+            async function login() {
+                const username = getValue('loginUser');
+                const password = getValue('loginPass');
+                const container = byId('loginMessage');
+
+                if (!username || !password) return container.innerHTML = msg('Ingresa usuario y contraseña.', 'bad');
+
+                const user = database.users.find(item => normalize(item.username) === normalize(username));
+                if (!user || !user.active) return container.innerHTML = msg('Usuario no encontrado o desactivado.', 'bad');
+
+                const hash = await hashPassword(password, user.salt || 'rutime');
+                if (hash !== user.passwordHash) return container.innerHTML = msg('Contraseña incorrecta.', 'bad');
+
+                saveSession(user);
+                saveDatabase(`Inicio de sesión: ${user.username}`);
+
+                if (user.role === 'supervisor') supervisorDashboard();
+                else if (user.role === 'driver') driverDashboard();
+                else checkerDashboard();
+            }
+
+            function logout() {
+                const user = me();
+                saveDatabase(`Cierre de sesión: ${user?.username || 'usuario'}`);
+                saveSession(null);
+                showLogin('Sesión cerrada correctamente.');
+            }
+
+            async function buildUser({ name, username, password, role }) {
+                const salt = createId();
+                const passwordHash = await hashPassword(password, salt);
+                return {
+                    id: createId(),
+                    name: name.trim(),
+                    username: username.trim(),
+                    role,
+                    salt,
+                    passwordHash,
+                    active: true,
+                    createdAt: getDateText(),
+                    updatedAt: getDateText()
+                };
+            }
+
+            async function hashPassword(password, salt) {
+                const text = `${salt}::${password}`;
+                if (window.crypto && crypto.subtle && window.TextEncoder) {
+                    const buffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+                    return Array.from(new Uint8Array(buffer)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+                }
+                let hash = 0;
+                for (let index = 0; index < text.length; index += 1) hash = ((hash << 5) - hash + text.charCodeAt(index)) | 0;
+                return `fallback-${Math.abs(hash)}`;
+            }
+
+            function supervisorDashboard() {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const stats = getStats();
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Panel de supervisor</h1>
+                            <p class="subtitle">Administra usuarios, rutas, horarios, asistencia y alertas.</p>
+                        </div>
+                        <span class="pill info">${escapeHTML(user.name)}</span>
+                    </div>
+
+                    <div class="grid-3" style="margin-bottom:18px;">
+                        <div class="stat"><b>${stats.activeDrivers}</b><span>Choferes activos</span></div>
+                        <div class="stat"><b>${stats.routes}</b><span>Rutas activas</span></div>
+                        <div class="stat"><b>${stats.todayDelays}</b><span>Retrasos hoy</span></div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div class="menu-card" onclick="app.supervisorUsers()"><div class="menu-icon">👥</div><h2>Usuarios</h2><p>Crear, actualizar o desactivar.</p></div>
+                        <div class="menu-card" onclick="app.supervisorRoutes()"><div class="menu-icon">🚌</div><h2>Rutas</h2><p>Asignar horarios y choferes.</p></div>
+                        <div class="menu-card" onclick="app.supervisorReports()"><div class="menu-icon">📊</div><h2>Reportes</h2><p>Asistencia, retrasos y checadores.</p></div>
+                        <div class="menu-card" onclick="app.supervisorTasks()"><div class="menu-icon">✅</div><h2>Tareas</h2><p>Indicaciones para choferes.</p></div>
+                        <div class="menu-card" onclick="app.supervisorData()"><div class="menu-icon">💾</div><h2>Datos</h2><p>Respaldos, demo e importación.</p></div>
+                        <div class="menu-card" onclick="app.advanceMinutes(30)"><div class="menu-icon">⏩</div><h2>Simular</h2><p>Avanza el reloj 30 minutos.</p></div>
+                    </div>
+                `, 'inicio');
+            }
+
+            function supervisorUsers() {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Usuarios</h1>
+                            <p class="subtitle">Cada persona entra solo a su rol.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="card">
+                            <h2>Nuevo usuario</h2>
+                            <div class="form-grid">
+                                <div class="field full">
+                                    <label for="newName">Nombre</label>
+                                    <input id="newName" placeholder="Nombre completo" />
+                                </div>
+                                <div class="field">
+                                    <label for="newUsername">Usuario</label>
+                                    <input id="newUsername" placeholder="Ejemplo: chofer19" />
+                                </div>
+                                <div class="field">
+                                    <label for="newRole">Rol</label>
+                                    <select id="newRole">
+                                        <option value="driver">Chofer</option>
+                                        <option value="checker">Checador</option>
+                                        <option value="supervisor">Supervisor</option>
+                                    </select>
+                                </div>
+                                <div class="field full">
+                                    <label for="newPassword">Contraseña</label>
+                                    <input id="newPassword" type="password" placeholder="Contraseña inicial" />
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <button class="btn green block" onclick="app.createUser()">Crear usuario</button>
+                            </div>
+                            <div id="userMessage"></div>
+                        </div>
+
+                        <div class="card">
+                            <h2>Resumen</h2>
+                            ${usersMiniStats()}
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:18px;">
+                        <div class="split-title"><h2>Lista de usuarios</h2><span class="mini-note">Botones grandes y claros</span></div>
+                        ${usersTableHTML()}
+                    </div>
+                `, 'usuarios');
+            }
+
+            async function createUser() {
+                const name = getValue('newName');
+                const username = getValue('newUsername');
+                const role = getValue('newRole');
+                const password = getValue('newPassword');
+                const container = byId('userMessage');
+
+                if (!name || !username || !password || !role) return container.innerHTML = msg('Llena todos los datos.', 'bad');
+                if (password.length < 4) return container.innerHTML = msg('La contraseña debe tener mínimo 4 caracteres.', 'bad');
+                if (database.users.some(user => normalize(user.username) === normalize(username))) return container.innerHTML = msg('Ese usuario ya existe.', 'bad');
+
+                const user = await buildUser({ name, username, password, role });
+                database.users.push(user);
+                saveDatabase(`Usuario creado: ${username} (${roleNames[role]})`);
+                supervisorUsers();
+            }
+
+            function changeUserName(id) {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const target = database.users.find(item => item.id === id);
+                if (!target) return;
+                const name = prompt('Nuevo nombre:', target.name);
+                if (!name || !name.trim()) return;
+                target.name = name.trim();
+                target.updatedAt = getDateText();
+                saveDatabase(`Nombre actualizado: ${target.username}`);
+                supervisorUsers();
+            }
+
+            async function changePassword(id) {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const target = database.users.find(item => item.id === id);
+                if (!target) return;
+                const pass = prompt(`Nueva contraseña para ${target.username}:`);
+                if (!pass) return;
+                if (pass.length < 4) return alert('Mínimo 4 caracteres.');
+                target.salt = createId();
+                target.passwordHash = await hashPassword(pass, target.salt);
+                target.updatedAt = getDateText();
+                saveDatabase(`Contraseña actualizada: ${target.username}`);
+                supervisorUsers();
+            }
+
+            function toggleUser(id) {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const target = database.users.find(item => item.id === id);
+                if (!target) return;
+                if (target.id === user.id) return alert('No puedes desactivar tu propio usuario.');
+                if (target.role === 'supervisor' && target.active && activeSupervisorsCount() <= 1) return alert('Debe quedar al menos un supervisor activo.');
+                target.active = !target.active;
+                target.updatedAt = getDateText();
+                saveDatabase(`${target.active ? 'Usuario activado' : 'Usuario desactivado'}: ${target.username}`);
+                supervisorUsers();
+            }
+
+            function deleteUser(id) {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const target = database.users.find(item => item.id === id);
+                if (!target) return;
+                if (target.id === user.id) return alert('No puedes eliminar tu propio usuario.');
+                if (target.role === 'supervisor' && activeSupervisorsCount() <= 1) return alert('Debe quedar al menos un supervisor activo.');
+                const ok = confirm(`¿Eliminar usuario ${target.username}?`);
+                if (!ok) return;
+                database.users = database.users.filter(item => item.id !== id);
+                database.routes.forEach(route => {
+                    if (route.driverUserId === id) route.driverUserId = '';
+                });
+                database.tasks.forEach(task => {
+                    if (task.assignedTo === id) task.assignedTo = '';
+                });
+                saveDatabase(`Usuario eliminado: ${target.username}`);
+                supervisorUsers();
+            }
+
+            function activeSupervisorsCount() {
+                return database.users.filter(user => user.role === 'supervisor' && user.active).length;
+            }
+
+            function usersMiniStats() {
+                const supervisors = database.users.filter(user => user.role === 'supervisor').length;
+                const drivers = database.users.filter(user => user.role === 'driver').length;
+                const checkers = database.users.filter(user => user.role === 'checker').length;
+                return `
+                    <div class="grid-2">
+                        <div class="stat"><b>${drivers}</b><span>Choferes</span></div>
+                        <div class="stat"><b>${checkers}</b><span>Checadores</span></div>
+                        <div class="stat"><b>${supervisors}</b><span>Supervisores</span></div>
+                        <div class="stat"><b>${database.users.filter(u => u.active).length}</b><span>Activos</span></div>
+                    </div>
+                `;
+            }
+
+            function usersTableHTML() {
+                if (!database.users.length) return '<div class="empty">Sin usuarios.</div>';
+                return `
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+                            <tbody>
+                                ${database.users.map(user => `
+                                    <tr>
+                                        <td>${escapeHTML(user.name)}</td>
+                                        <td>${escapeHTML(user.username)}</td>
+                                        <td><span class="pill info">${escapeHTML(roleNames[user.role] || user.role)}</span></td>
+                                        <td>${user.active ? '<span class="pill">Activo</span>' : '<span class="pill bad">Desactivado</span>'}</td>
+                                        <td>
+                                            <button class="btn gray small-btn" onclick="app.changeUserName('${user.id}')">Nombre</button>
+                                            <button class="btn gray small-btn" onclick="app.changePassword('${user.id}')">Contraseña</button>
+                                            <button class="btn orange small-btn" onclick="app.toggleUser('${user.id}')">${user.active ? 'Desactivar' : 'Activar'}</button>
+                                            <button class="btn red small-btn" onclick="app.deleteUser('${user.id}')">Eliminar</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            function supervisorRoutes() {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Rutas y horarios</h1>
+                            <p class="subtitle">Aquí nace lo que el chofer verá en sus botones.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Nueva ruta</h2>
+                        ${routeFormHTML('new')}
+                        <div class="actions"><button class="btn green block" onclick="app.createRoute()">Guardar ruta</button></div>
+                        <div id="routeMessage"></div>
+                    </div>
+
+                    <div class="card" style="margin-top:18px;">
+                        <div class="split-title"><h2>Rutas registradas</h2><span class="mini-note">Horario simulado activo</span></div>
+                        ${routesListHTML()}
+                    </div>
+                `, 'rutas');
+            }
+
+            function routeFormHTML(prefix, route = {}) {
+                return `
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="${prefix}RouteNumber">Número de ruta</label>
+                            <input id="${prefix}RouteNumber" value="${escapeHTML(route.routeNumber || '')}" placeholder="Ejemplo: 19" />
+                        </div>
+                        <div class="field">
+                            <label for="${prefix}Driver">Chofer asignado</label>
+                            <select id="${prefix}Driver">
+                                <option value="">Sin asignar</option>
+                                ${driverOptions(route.driverUserId)}
+                            </select>
+                        </div>
+                        <div class="field full">
+                            <label for="${prefix}Destination">Trayecto / destino</label>
+                            <input id="${prefix}Destination" value="${escapeHTML(route.destination || '')}" placeholder="Ejemplo: Jiutepec - Centro - UPEMOR" />
+                        </div>
+                        <div class="field">
+                            <label for="${prefix}Start">Inicio de labores</label>
+                            <input id="${prefix}Start" type="time" value="${escapeHTML(route.startTime || '08:00')}" />
+                        </div>
+                        <div class="field">
+                            <label for="${prefix}LunchStart">Inicio de comida</label>
+                            <input id="${prefix}LunchStart" type="time" value="${escapeHTML(route.lunchStart || '09:00')}" />
+                        </div>
+                        <div class="field">
+                            <label for="${prefix}LunchEnd">Regreso de comida</label>
+                            <input id="${prefix}LunchEnd" type="time" value="${escapeHTML(route.lunchEnd || '09:30')}" />
+                        </div>
+                        <div class="field">
+                            <label for="${prefix}End">Fin de labores</label>
+                            <input id="${prefix}End" type="time" value="${escapeHTML(route.endTime || '17:00')}" />
+                        </div>
+                        <div class="field full">
+                            <label for="${prefix}Notes">Notas cortas</label>
+                            <textarea id="${prefix}Notes" placeholder="Indicaciones importantes">${escapeHTML(route.notes || '')}</textarea>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function driverOptions(selected = '') {
+                const drivers = database.users.filter(user => user.role === 'driver' && user.active);
+                return drivers.map(user => `<option value="${user.id}" ${user.id === selected ? 'selected' : ''}>${escapeHTML(user.name)} · ${escapeHTML(user.username)}</option>`).join('');
+            }
+
+            function readRouteForm(prefix) {
+                return {
+                    routeNumber: getValue(`${prefix}RouteNumber`),
+                    driverUserId: getValue(`${prefix}Driver`),
+                    destination: getValue(`${prefix}Destination`),
+                    startTime: getValue(`${prefix}Start`),
+                    lunchStart: getValue(`${prefix}LunchStart`),
+                    lunchEnd: getValue(`${prefix}LunchEnd`),
+                    endTime: getValue(`${prefix}End`),
+                    notes: getValue(`${prefix}Notes`)
+                };
+            }
+
+            function validateRoute(route, currentId = '') {
+                if (!route.routeNumber) return 'Falta el número de ruta.';
+                if (!route.destination) return 'Falta el trayecto.';
+                if (!route.startTime || !route.lunchStart || !route.lunchEnd || !route.endTime) return 'Completa todos los horarios.';
+                const start = timeToMinutes(route.startTime);
+                const lunchStart = timeToMinutes(route.lunchStart);
+                const lunchEnd = timeToMinutes(route.lunchEnd);
+                const end = timeToMinutes(route.endTime);
+                if (!(start < lunchStart && lunchStart < lunchEnd && lunchEnd < end)) return 'El orden debe ser: inicio, comida, regreso, fin.';
+                const duplicate = database.routes.find(item => normalize(item.routeNumber) === normalize(route.routeNumber) && item.id !== currentId);
+                if (duplicate) return 'Ese número de ruta ya existe.';
+                return '';
+            }
+
+            function createRoute() {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const route = readRouteForm('new');
+                const container = byId('routeMessage');
+                const error = validateRoute(route);
+                if (error) return container.innerHTML = msg(error, 'bad');
+
+                database.routes.push({
+                    ...route,
+                    id: createId(),
+                    active: true,
+                    status: 'Pendiente',
+                    createdAt: getDateText(),
+                    updatedAt: getDateText()
+                });
+                saveDatabase(`Ruta creada: ${route.routeNumber}`);
+                supervisorRoutes();
+            }
+
+            function editRoute(id) {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const route = database.routes.find(item => item.id === id);
+                if (!route) return;
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Editar ruta ${escapeHTML(route.routeNumber)}</h1>
+                            <p class="subtitle">Los cambios aparecen de inmediato para el chofer.</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        ${routeFormHTML('edit', route)}
+                        <div class="actions">
+                            <button class="btn green" onclick="app.updateRoute('${route.id}')">Guardar cambios</button>
+                            <button class="btn gray" onclick="app.supervisorRoutes()">Cancelar</button>
+                        </div>
+                        <div id="editRouteMessage"></div>
+                    </div>
+                `, 'rutas');
+            }
+
+            function updateRoute(id) {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const route = database.routes.find(item => item.id === id);
+                const container = byId('editRouteMessage');
+                if (!route) return;
+                const data = readRouteForm('edit');
+                const error = validateRoute(data, id);
+                if (error) return container.innerHTML = msg(error, 'bad');
+                Object.assign(route, data, { updatedAt: getDateText() });
+                saveDatabase(`Ruta actualizada: ${route.routeNumber}`);
+                supervisorRoutes();
+            }
+
+            function deleteRoute(id) {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const route = database.routes.find(item => item.id === id);
+                if (!route) return;
+                if (!confirm(`¿Eliminar ruta ${route.routeNumber}? También se ocultará de los choferes.`)) return;
+                database.routes = database.routes.filter(item => item.id !== id);
+                saveDatabase(`Ruta eliminada: ${route.routeNumber}`);
+                supervisorRoutes();
+            }
+
+            function routesListHTML() {
+                if (!database.routes.length) return '<div class="empty">No hay rutas. Crea una para asignarla a un chofer.</div>';
+                return database.routes.map(route => {
+                    const driver = database.users.find(user => user.id === route.driverUserId);
+                    const today = getTodayAttendance(route.id, route.driverUserId);
+                    return `
+                        <article class="route-card">
+                            <div class="route-top">
+                                <div>
+                                    <h2>Ruta ${escapeHTML(route.routeNumber)}</h2>
+                                    <p class="small">${escapeHTML(route.destination)}</p>
+                                </div>
+                                ${route.active ? '<span class="pill">Activa</span>' : '<span class="pill bad">Inactiva</span>'}
+                            </div>
+                            <div class="route-meta">
+                                <div class="meta-box"><b>Chofer</b><span>${driver ? escapeHTML(driver.name) : 'Sin asignar'}</span></div>
+                                <div class="meta-box"><b>Inicio</b><span>${escapeHTML(route.startTime)}</span></div>
+                                <div class="meta-box"><b>Comida</b><span>${escapeHTML(route.lunchStart)} - ${escapeHTML(route.lunchEnd)}</span></div>
+                                <div class="meta-box"><b>Fin</b><span>${escapeHTML(route.endTime)}</span></div>
+                            </div>
+                            <div class="actions">
+                                <span class="pill ${today.some(e => e.delayMinutes > 5) ? 'warn' : 'info'}">Hoy: ${today.length} registros</span>
+                                <button class="btn gray small-btn" onclick="app.editRoute('${route.id}')">Editar</button>
+                                <button class="btn red small-btn" onclick="app.deleteRoute('${route.id}')">Eliminar</button>
+                            </div>
+                        </article>
+                    `;
+                }).join('');
+            }
+
+            function supervisorTasks() {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Tareas para choferes</h1>
+                            <p class="subtitle">Indicaciones simples que el chofer verá en su panel.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="card">
+                            <h2>Nueva tarea</h2>
+                            <div class="form-grid">
+                                <div class="field full">
+                                    <label for="taskDriver">Chofer</label>
+                                    <select id="taskDriver">${driverOptions()}</select>
+                                </div>
+                                <div class="field full">
+                                    <label for="taskTitle">Tarea</label>
+                                    <input id="taskTitle" placeholder="Ejemplo: revisar unidad antes de salir" />
+                                </div>
+                                <div class="field full">
+                                    <label for="taskDetails">Detalle</label>
+                                    <textarea id="taskDetails" placeholder="Indicaciones cortas"></textarea>
+                                </div>
+                            </div>
+                            <div class="actions"><button class="btn green block" onclick="app.createTask()">Asignar tarea</button></div>
+                            <div id="taskMessage"></div>
+                        </div>
+                        <div class="card">
+                            <h2>Estado</h2>
+                            ${tasksStatsHTML()}
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:18px;">
+                        <h2>Tareas registradas</h2>
+                        ${tasksTableHTML(database.tasks)}
+                    </div>
+                `, 'tareas');
+            }
+
+            function createTask() {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const assignedTo = getValue('taskDriver');
+                const title = getValue('taskTitle');
+                const details = getValue('taskDetails');
+                const container = byId('taskMessage');
+                if (!assignedTo) return container.innerHTML = msg('Selecciona un chofer.', 'bad');
+                if (!title) return container.innerHTML = msg('Escribe la tarea.', 'bad');
+                database.tasks.unshift({
+                    id: createId(),
+                    assignedTo,
+                    title,
+                    details,
+                    status: 'Pendiente',
+                    createdBy: user.id,
+                    createdAt: getDateText(),
+                    completedAt: ''
+                });
+                saveDatabase(`Tarea asignada: ${title}`);
+                supervisorTasks();
+            }
+
+            function deleteTask(id) {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const task = database.tasks.find(item => item.id === id);
+                if (!task) return;
+                if (!confirm('¿Eliminar esta tarea?')) return;
+                database.tasks = database.tasks.filter(item => item.id !== id);
+                saveDatabase(`Tarea eliminada: ${task.title}`);
+                supervisorTasks();
+            }
+
+            function tasksStatsHTML() {
+                const pending = database.tasks.filter(task => task.status !== 'Realizada').length;
+                const done = database.tasks.filter(task => task.status === 'Realizada').length;
+                return `
+                    <div class="grid-2">
+                        <div class="stat"><b>${pending}</b><span>Pendientes</span></div>
+                        <div class="stat"><b>${done}</b><span>Realizadas</span></div>
+                    </div>
+                `;
+            }
+
+            function tasksTableHTML(tasks) {
+                if (!tasks.length) return '<div class="empty">No hay tareas.</div>';
+                return `
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Tarea</th><th>Chofer</th><th>Estado</th><th>Fecha</th><th>Acción</th></tr></thead>
+                            <tbody>
+                                ${tasks.map(task => {
+                                    const driver = database.users.find(user => user.id === task.assignedTo);
+                                    return `
+                                        <tr>
+                                            <td>${escapeHTML(task.title)}<br><span class="small">${escapeHTML(task.details || '')}</span></td>
+                                            <td>${driver ? escapeHTML(driver.name) : 'Sin asignar'}</td>
+                                            <td>${task.status === 'Realizada' ? '<span class="pill">Realizada</span>' : '<span class="pill warn">Pendiente</span>'}</td>
+                                            <td>${escapeHTML(task.createdAt)}</td>
+                                            <td><button class="btn red small-btn" onclick="app.deleteTask('${task.id}')">Eliminar</button></td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            function supervisorReports() {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const stats = getStats();
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Reportes</h1>
+                            <p class="subtitle">Todo lo que registran choferes y checadores se ve aquí.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid-3" style="margin-bottom:18px;">
+                        <div class="stat"><b>${stats.todayEvents}</b><span>Registros de chofer hoy</span></div>
+                        <div class="stat"><b>${stats.todayDelays}</b><span>Retrasos hoy</span></div>
+                        <div class="stat"><b>${stats.checkerAlerts}</b><span>Alertas de checador</span></div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Registros de choferes</h2>
+                        ${attendanceTableHTML(database.attendance)}
+                    </div>
+
+                    <div class="card" style="margin-top:18px;">
+                        <h2>Registros de checadores</h2>
+                        ${checkerLogsTableHTML(database.checkerLogs)}
+                    </div>
+                `, 'reportes');
+            }
+
+            function supervisorData() {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Datos del sistema</h1>
+                            <p class="subtitle">Respaldos, pruebas y limpieza local.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Herramientas</h2>
+                        <div class="actions">
+                            <button class="btn green" onclick="app.seedDemoData()">Cargar demo</button>
+                            <button class="btn" onclick="app.exportData()">Exportar JSON</button>
+                            <button class="btn orange" onclick="document.getElementById('importFile').click()">Importar JSON</button>
+                            <button class="btn red" onclick="app.resetAllData()">Borrar todo</button>
+                        </div>
+                        <input id="importFile" type="file" accept="application/json" class="hidden" onchange="app.importData(event)" />
+                        <div id="dataMessage"></div>
+                    </div>
+
+                    <div class="card" style="margin-top:18px;">
+                        <h2>Últimos movimientos</h2>
+                        ${systemLogsHTML()}
+                    </div>
+                `, 'datos');
+            }
+
+            function exportData() {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const blob = new Blob([JSON.stringify(database, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `rutime-respaldo-${Date.now()}.json`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+                const container = byId('dataMessage');
+                if (container) container.innerHTML = msg('Respaldo exportado.', 'ok');
+            }
+
+            function importData(event) {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                const file = event.target.files[0];
+                const container = byId('dataMessage');
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = () => {
+                    try {
+                        const imported = JSON.parse(reader.result);
+                        database = sanitizeDatabase(imported);
+                        saveDatabase('Respaldo importado');
+                        container.innerHTML = msg('Respaldo importado correctamente.', 'ok');
+                        setTimeout(supervisorData, 700);
+                    } catch (error) {
+                        container.innerHTML = msg('El archivo no es un JSON válido de RuTIME.', 'bad');
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            function resetAllData() {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                if (!confirm('¿Seguro que quieres borrar TODO? Esta acción no se puede deshacer.')) return;
+                localStorage.removeItem(DB_KEY);
+                localStorage.removeItem(SESSION_KEY);
+                database = structuredClone(defaultDatabase);
+                currentUser = null;
+                home();
+            }
+
+            async function seedDemoData() {
+                const user = requireRole('supervisor');
+                if (!user) return;
+                if (!confirm('Esto agregará usuarios y rutas demo. ¿Continuar?')) return;
+
+                const make = async (name, username, role) => buildUser({ name, username, password: '1234', role });
+                const driver1 = await make('Chofer Ruta 19', 'chofer19', 'driver');
+                const driver2 = await make('Chofer Ruta 24', 'chofer24', 'driver');
+                const checker = await make('Checador Centro', 'checador1', 'checker');
+                database.users = [user, driver1, driver2, checker];
+                database.routes = [
+                    {
+                        id: createId(), routeNumber: '19', destination: 'Jiutepec - Centro - UPEMOR', driverUserId: driver1.id,
+                        startTime: '08:00', lunchStart: '09:00', lunchEnd: '09:30', endTime: '11:00', notes: 'Demo rápido para ver botones cambiar.',
+                        active: true, status: 'Pendiente', createdAt: getDateText(), updatedAt: getDateText()
+                    },
+                    {
+                        id: createId(), routeNumber: '24', destination: 'CIVAC - Tejalpa - Cuernavaca', driverUserId: driver2.id,
+                        startTime: '08:10', lunchStart: '09:20', lunchEnd: '09:45', endTime: '11:20', notes: 'Ruta demo con horarios cercanos.',
+                        active: true, status: 'Pendiente', createdAt: getDateText(), updatedAt: getDateText()
+                    }
+                ];
+                database.attendance = [];
+                database.checkerLogs = [];
+                database.tasks = [
+                    { id: createId(), assignedTo: driver1.id, title: 'Revisar unidad', details: 'Confirmar luces y limpieza antes de salir.', status: 'Pendiente', createdBy: user.id, createdAt: getDateText(), completedAt: '' }
+                ];
+                database.settings.clock.minutes = 7 * 60 + 50;
+                saveDatabase('Datos demo cargados');
+                supervisorDashboard();
+                alert('Demo cargado. Usuarios: chofer19 / 1234, chofer24 / 1234, checador1 / 1234');
+            }
+
+            function driverDashboard() {
+                const user = requireRole('driver');
+                if (!user) return;
+                const routes = activeRoutesForDriver(user.id);
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Inicio del chofer</h1>
+                            <p class="subtitle">Tus botones cambian solos con el horario.</p>
+                        </div>
+                        <span class="pill info">Rutas asignadas: ${routes.length}</span>
+                    </div>
+                    ${driverRoutesHTML(routes, user)}
+                `, 'inicio');
+            }
+
+            function driverAttendance() {
+                const user = requireRole('driver');
+                if (!user) return;
+                const routes = activeRoutesForDriver(user.id);
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Registrar asistencia</h1>
+                            <p class="subtitle">Presiona el botón principal de tu ruta.</p>
+                        </div>
+                    </div>
+                    ${driverRoutesHTML(routes, user)}
+                `, 'asistencia');
+            }
+
+            function activeRoutesForDriver(driverId) {
+                return database.routes.filter(route => route.active !== false && route.driverUserId === driverId);
+            }
+
+            function driverRoutesHTML(routes, user) {
+                if (!routes.length) return '<div class="empty">No tienes rutas asignadas. Pregunta al supervisor.</div>';
+                return routes.map(route => {
+                    const action = getDriverAction(route, user.id);
+                    const events = getTodayAttendance(route.id, user.id);
+                    return `
+                        <article class="route-card">
+                            <div class="route-top">
+                                <div>
+                                    <h2>Ruta ${escapeHTML(route.routeNumber)}</h2>
+                                    <p class="small">${escapeHTML(route.destination)}</p>
+                                </div>
+                                ${driverPhasePill(action)}
+                            </div>
+                            <div class="route-meta">
+                                <div class="meta-box"><b>Inicio</b><span>${escapeHTML(route.startTime)}</span></div>
+                                <div class="meta-box"><b>Comida</b><span>${escapeHTML(route.lunchStart)}</span></div>
+                                <div class="meta-box"><b>Regreso</b><span>${escapeHTML(route.lunchEnd)}</span></div>
+                                <div class="meta-box"><b>Fin</b><span>${escapeHTML(route.endTime)}</span></div>
+                            </div>
+                            <div class="actions">
+                                <button class="btn big-action ${action.color || 'green'}" ${action.disabled ? 'disabled' : ''} onclick="app.driverAction('${route.id}')">${escapeHTML(action.label)}</button>
+                                <button class="btn gray" onclick="app.showDriverStatusForm('${route.id}')">Reportar estado</button>
+                                <button class="btn gray" onclick="app.driverReport()">Ver reporte</button>
+                            </div>
+                            <div class="msg info">
+                                ${escapeHTML(action.help)}<br>
+                                Hoy llevas ${events.length} registro(s).
+                            </div>
+                        </article>
+                    `;
+                }).join('');
+            }
+
+            function driverPhasePill(action) {
+                if (action.type === 'wait') return '<span class="pill gray">En espera</span>';
+                if (action.type === 'start' || action.type === 'lunchOut' || action.type === 'lunchIn') return '<span class="pill warn">Acción requerida</span>';
+                if (action.type === 'end') return '<span class="pill info">Cierre de ruta</span>';
+                if (action.type === 'done') return '<span class="pill">Finalizada</span>';
+                return '<span class="pill info">En ruta</span>';
+            }
+
+            function getDriverAction(route, driverId) {
+                const now = database.settings.clock.minutes;
+                const start = timeToMinutes(route.startTime);
+                const lunchStart = timeToMinutes(route.lunchStart);
+                const lunchEnd = timeToMinutes(route.lunchEnd);
+                const end = timeToMinutes(route.endTime);
+                const events = getTodayAttendance(route.id, driverId);
+                const has = type => events.some(event => event.type === type);
+
+                if (!has('start')) {
+                    if (now < start - 5) return { type: 'wait', label: `Inicia a las ${route.startTime}`, disabled: true, help: 'Todavía no es hora de registrar asistencia.' };
+                    if (now > start + 5) return { type: 'start', label: 'Registrar retraso', scheduled: start, color: 'orange', help: `Tu inicio era a las ${route.startTime}. Se marcará retraso.` };
+                    return { type: 'start', label: 'Registrar asistencia', scheduled: start, color: 'green', help: 'Estás en la ventana correcta para iniciar.' };
+                }
+
+                if (!has('lunchOut')) {
+                    if (now >= lunchStart - 5 && now < lunchEnd) return { type: 'lunchOut', label: 'Es hora de comer · registrar descanso', scheduled: lunchStart, color: 'pink', help: `Comida programada a las ${route.lunchStart}.` };
+                    if (now > lunchEnd) return { type: 'lunchOut', label: 'Registrar descanso atrasado', scheduled: lunchStart, color: 'orange', help: 'La hora de comida ya pasó. Se marcará retraso.' };
+                    return { type: 'status', label: 'En ruta · reportar estado', disabled: true, help: `Siguiente botón: comida a las ${route.lunchStart}.` };
+                }
+
+                if (!has('lunchIn')) {
+                    if (now < lunchEnd - 5) return { type: 'wait', label: `Volver a las ${route.lunchEnd}`, disabled: true, help: 'Estás dentro del tiempo de descanso.' };
+                    if (now > lunchEnd + 5) return { type: 'lunchIn', label: 'Regresar de descanso con retraso', scheduled: lunchEnd, color: 'orange', help: `El regreso era a las ${route.lunchEnd}.` };
+                    return { type: 'lunchIn', label: 'Registrar regreso de descanso', scheduled: lunchEnd, color: 'green', help: 'Estás a tiempo para regresar de descanso.' };
+                }
+
+                if (!has('end')) {
+                    if (now >= end - 5) return { type: 'end', label: 'Finalizar ruta', scheduled: end, color: 'dark', help: `Fin programado a las ${route.endTime}.` };
+                    return { type: 'status', label: 'En ruta · reportar estado', disabled: true, help: `Siguiente botón: finalizar a las ${route.endTime}.` };
+                }
+
+                return { type: 'done', label: 'Ruta finalizada hoy', disabled: true, help: 'Ya terminaste esta ruta por hoy.' };
+            }
+
+            function driverAction(routeId) {
+                const user = requireRole('driver');
+                if (!user) return;
+                const route = database.routes.find(item => item.id === routeId);
+                if (!route) return;
+                const action = getDriverAction(route, user.id);
+                if (action.disabled || action.type === 'status' || action.type === 'wait' || action.type === 'done') return;
+
+                const actual = database.settings.clock.minutes;
+                const delayMinutes = typeof action.scheduled === 'number' ? Math.max(0, actual - action.scheduled) : 0;
+                const status = delayMinutes > 5 ? `Retraso de ${delayMinutes} min` : 'A tiempo';
+
+                database.attendance.unshift({
+                    id: createId(),
+                    routeId: route.id,
+                    routeNumber: route.routeNumber,
+                    driverId: user.id,
+                    driverName: user.name,
+                    type: action.type,
+                    label: action.label,
+                    status,
+                    delayMinutes,
+                    scheduledTime: typeof action.scheduled === 'number' ? minutesToTime(action.scheduled) : '',
+                    actualTime: minutesToTime(actual),
+                    dayKey: getTodayKey(),
+                    dateText: getDateText(),
+                    notes: ''
+                });
+
+                route.status = action.label;
+                route.updatedAt = getDateText();
+                saveDatabase(`${user.name}: ${action.label} ruta ${route.routeNumber}`);
+                driverAttendance();
+            }
+
+            function showDriverStatusForm(routeId) {
+                const user = requireRole('driver');
+                if (!user) return;
+                const route = database.routes.find(item => item.id === routeId);
+                if (!route) return;
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Reportar estado</h1>
+                            <p class="subtitle">Ruta ${escapeHTML(route.routeNumber)} · ${escapeHTML(route.destination)}</p>
+                        </div>
+                    </div>
+                    <div class="section-center">
+                        <div class="card">
+                            <div class="form-grid">
+                                <div class="field full">
+                                    <label for="statusText">Estado</label>
+                                    <select id="statusText">
+                                        <option value="En ruta">En ruta</option>
+                                        <option value="Tráfico pesado">Tráfico pesado</option>
+                                        <option value="Unidad revisada">Unidad revisada</option>
+                                        <option value="Incidencia reportada">Incidencia reportada</option>
+                                    </select>
+                                </div>
+                                <div class="field full">
+                                    <label for="statusNotes">Nota corta</label>
+                                    <textarea id="statusNotes" placeholder="Ejemplo: tráfico en avenida principal"></textarea>
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <button class="btn green" onclick="app.saveDriverStatus('${route.id}')">Guardar estado</button>
+                                <button class="btn gray" onclick="app.driverAttendance()">Regresar</button>
+                            </div>
+                            <div id="statusMessage"></div>
+                        </div>
+                    </div>
+                `, 'asistencia');
+            }
+
+            function saveDriverStatus(routeId) {
+                const user = requireRole('driver');
+                if (!user) return;
+                const route = database.routes.find(item => item.id === routeId);
+                if (!route) return;
+                const status = getValue('statusText');
+                const notes = getValue('statusNotes');
+                database.attendance.unshift({
+                    id: createId(), routeId: route.id, routeNumber: route.routeNumber, driverId: user.id, driverName: user.name,
+                    type: 'status', label: status, status: 'Reportado', delayMinutes: 0, scheduledTime: '', actualTime: minutesToTime(database.settings.clock.minutes),
+                    dayKey: getTodayKey(), dateText: getDateText(), notes
+                });
+                route.status = status;
+                route.updatedAt = getDateText();
+                saveDatabase(`${user.name}: estado ${status} ruta ${route.routeNumber}`);
+                byId('statusMessage').innerHTML = msg('Estado guardado. El supervisor ya puede verlo.', 'ok');
+                setTimeout(driverAttendance, 600);
+            }
+
+            function driverReport() {
+                const user = requireRole('driver');
+                if (!user) return;
+                const logs = database.attendance.filter(item => item.driverId === user.id);
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Mi reporte</h1>
+                            <p class="subtitle">Asistencias, descansos, regresos y retrasos.</p>
+                        </div>
+                    </div>
+                    <div class="card">${attendanceTableHTML(logs)}</div>
+                `, 'reporte');
+            }
+
+            function driverTasks() {
+                const user = requireRole('driver');
+                if (!user) return;
+                const tasks = database.tasks.filter(task => task.assignedTo === user.id);
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Mis tareas</h1>
+                            <p class="subtitle">Indicaciones del supervisor.</p>
+                        </div>
+                    </div>
+                    ${driverTasksHTML(tasks)}
+                `, 'tareas');
+            }
+
+            function driverTasksHTML(tasks) {
+                if (!tasks.length) return '<div class="empty">No tienes tareas pendientes.</div>';
+                return tasks.map(task => `
+                    <div class="route-card">
+                        <div class="route-top">
+                            <div><h2>${escapeHTML(task.title)}</h2><p class="small">${escapeHTML(task.details || 'Sin detalles')}</p></div>
+                            ${task.status === 'Realizada' ? '<span class="pill">Realizada</span>' : '<span class="pill warn">Pendiente</span>'}
+                        </div>
+                        <div class="actions">
+                            <button class="btn green" ${task.status === 'Realizada' ? 'disabled' : ''} onclick="app.completeTask('${task.id}')">Marcar realizada</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function completeTask(id) {
+                const user = requireRole('driver');
+                if (!user) return;
+                const task = database.tasks.find(item => item.id === id && item.assignedTo === user.id);
+                if (!task) return;
+                task.status = 'Realizada';
+                task.completedAt = getDateText();
+                saveDatabase(`${user.name}: tarea realizada ${task.title}`);
+                driverTasks();
+            }
+
+            function checkerDashboard() {
+                const user = requireRole('checker');
+                if (!user) return;
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Registro de checador</h1>
+                            <p class="subtitle">Marca si la ruta pasó o no pasó.</p>
+                        </div>
+                    </div>
+
+                    <div class="section-center">
+                        <div class="card">
+                            <div class="form-grid">
+                                <div class="field full">
+                                    <label for="checkRoute">Ruta</label>
+                                    <select id="checkRoute">
+                                        ${database.routes.length ? database.routes.map(route => `<option value="${route.id}">Ruta ${escapeHTML(route.routeNumber)} · ${escapeHTML(route.destination)}</option>`).join('') : '<option value="">No hay rutas</option>'}
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="checkPassed">Resultado</label>
+                                    <select id="checkPassed"><option value="yes">Sí pasó</option><option value="no">No pasó</option></select>
+                                </div>
+                                <div class="field">
+                                    <label for="checkTime">Hora</label>
+                                    <input id="checkTime" type="time" value="${minutesToTime(database.settings.clock.minutes)}" />
+                                </div>
+                                <div class="field full">
+                                    <label for="checkStop">Parada o zona</label>
+                                    <input id="checkStop" placeholder="Ejemplo: Centro Jiutepec" />
+                                </div>
+                                <div class="field full">
+                                    <label for="checkNotes">Observación</label>
+                                    <textarea id="checkNotes" placeholder="Algo corto y claro"></textarea>
+                                </div>
+                            </div>
+                            <div class="actions"><button class="btn green block" onclick="app.saveCheckerLog()">Guardar registro</button></div>
+                            <div id="checkerMessage"></div>
+                        </div>
+                    </div>
+                `, 'registro');
+            }
+
+            function saveCheckerLog() {
+                const user = requireRole('checker');
+                if (!user) return;
+                const routeId = getValue('checkRoute');
+                const route = database.routes.find(item => item.id === routeId);
+                const passed = getValue('checkPassed');
+                const time = getValue('checkTime');
+                const stop = getValue('checkStop');
+                const notes = getValue('checkNotes');
+                const container = byId('checkerMessage');
+                if (!route) return container.innerHTML = msg('Selecciona una ruta.', 'bad');
+                if (!stop) return container.innerHTML = msg('Escribe la parada o zona.', 'bad');
+                database.checkerLogs.unshift({
+                    id: createId(), routeId: route.id, routeNumber: route.routeNumber, checkerId: user.id, checkerName: user.name,
+                    passed, time, stop, notes, dayKey: getTodayKey(), dateText: getDateText()
+                });
+                saveDatabase(`${user.name}: ruta ${route.routeNumber} ${passed === 'yes' ? 'sí pasó' : 'no pasó'}`);
+                container.innerHTML = passed === 'no'
+                    ? msg('Guardado. Se activó alerta para supervisor.', 'warn')
+                    : msg('Registro guardado correctamente.', 'ok');
+            }
+
+            function checkerHistory() {
+                const user = requireRole('checker');
+                if (!user) return;
+                const logs = database.checkerLogs.filter(log => log.checkerId === user.id);
+                setScreen(`
+                    <div class="page-head">
+                        <div>
+                            <h1 class="title">Historial de checador</h1>
+                            <p class="subtitle">Tus últimos registros.</p>
+                        </div>
+                    </div>
+                    <div class="card">${checkerLogsTableHTML(logs)}</div>
+                `, 'historial');
+            }
+
+            function attendanceTableHTML(list) {
+                if (!list.length) return '<div class="empty">No hay registros todavía.</div>';
+                return `
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Chofer</th><th>Ruta</th><th>Acción</th><th>Hora</th><th>Estado</th><th>Nota</th></tr></thead>
+                            <tbody>
+                                ${list.map(item => `
+                                    <tr>
+                                        <td>${escapeHTML(item.driverName)}</td>
+                                        <td>${escapeHTML(item.routeNumber)}</td>
+                                        <td>${escapeHTML(item.label)}</td>
+                                        <td>${escapeHTML(item.actualTime)}<br><span class="small">${escapeHTML(item.dateText)}</span></td>
+                                        <td>${item.delayMinutes > 5 ? `<span class="pill warn">${escapeHTML(item.status)}</span>` : `<span class="pill">${escapeHTML(item.status)}</span>`}</td>
+                                        <td>${escapeHTML(item.notes || '')}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            function checkerLogsTableHTML(list) {
+                if (!list.length) return '<div class="empty">No hay registros de checadores.</div>';
+                return `
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Checador</th><th>Ruta</th><th>Resultado</th><th>Parada</th><th>Hora</th><th>Observación</th></tr></thead>
+                            <tbody>
+                                ${list.map(log => `
+                                    <tr>
+                                        <td>${escapeHTML(log.checkerName)}</td>
+                                        <td>${escapeHTML(log.routeNumber)}</td>
+                                        <td>${log.passed === 'yes' ? '<span class="pill">Sí pasó</span>' : '<span class="pill bad">No pasó</span>'}</td>
+                                        <td>${escapeHTML(log.stop)}</td>
+                                        <td>${escapeHTML(log.time)}<br><span class="small">${escapeHTML(log.dateText)}</span></td>
+                                        <td>${escapeHTML(log.notes || '')}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            function systemLogsHTML() {
+                if (!database.systemLogs.length) return '<div class="empty">Sin movimientos.</div>';
+                return `
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Acción</th><th>Usuario</th><th>Fecha</th></tr></thead>
+                            <tbody>${database.systemLogs.slice(0, 18).map(log => `
+                                <tr><td>${escapeHTML(log.action)}</td><td>${escapeHTML(log.userName)}</td><td>${escapeHTML(log.dateText)}</td></tr>
+                            `).join('')}</tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            function getStats() {
+                const today = getTodayKey();
+                const todayEvents = database.attendance.filter(item => item.dayKey === today);
+                return {
+                    activeDrivers: database.users.filter(user => user.role === 'driver' && user.active).length,
+                    routes: database.routes.filter(route => route.active !== false).length,
+                    todayEvents: todayEvents.length,
+                    todayDelays: todayEvents.filter(item => item.delayMinutes > 5).length,
+                    checkerAlerts: database.checkerLogs.filter(log => log.dayKey === today && log.passed === 'no').length
+                };
+            }
+
+            function getTodayAttendance(routeId, driverId) {
+                return database.attendance.filter(item => item.routeId === routeId && item.driverId === driverId && item.dayKey === getTodayKey());
+            }
+
+            function msg(text, type = 'ok') {
+                return `<div class="msg ${type}">${escapeHTML(text)}</div>`;
+            }
+
+            function timeToMinutes(value) {
+                const [hour, minute] = String(value || '00:00').split(':').map(Number);
+                return (hour || 0) * 60 + (minute || 0);
+            }
+
+            function minutesToTime(minutes) {
+                const total = ((minutes % 1440) + 1440) % 1440;
+                const hour = Math.floor(total / 60);
+                const minute = total % 60;
+                return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+            }
+
+            function getDateText() {
+                const clock = database.settings.clock;
+                return `${dayNames[clock.dayIndex]} ${clock.day} de ${monthNames[clock.month]} de ${clock.year} · ${minutesToTime(clock.minutes)}`;
+            }
+
+            function getTodayKey() {
+                const clock = database.settings.clock;
+                return `${clock.year}-${clock.month + 1}-${clock.day}`;
+            }
+
+            function tickClock() {
+                advanceMinutes(1, true);
+            }
+
+            function advanceMinutes(amount, silent = false) {
+                const clock = database.settings.clock;
+                clock.minutes += amount;
+                while (clock.minutes >= 1440) {
+                    clock.minutes -= 1440;
+                    clock.dayIndex = (clock.dayIndex + 1) % 7;
+                    clock.day += 1;
+                    if (clock.day > daysInMonth(clock.month, clock.year)) {
+                        clock.day = 1;
+                        clock.month += 1;
+                        if (clock.month > 11) {
+                            clock.month = 0;
+                            clock.year += 1;
+                        }
+                    }
+                }
+                renderClock();
+                localStorage.setItem(DB_KEY, JSON.stringify(database));
+                if (!silent) refreshCurrentScreen();
+            }
+
+            function resetClockMorning() {
+                const clock = database.settings.clock;
+                clock.minutes = 7 * 60 + 50;
+                renderClock();
+                localStorage.setItem(DB_KEY, JSON.stringify(database));
+                refreshCurrentScreen();
+            }
+
+            function refreshCurrentScreen() {
+                const user = me();
+                if (!user) return renderShell();
+                const active = document.querySelector('.nav button.active')?.textContent || '';
+                if (user.role === 'driver') {
+                    if (active.includes('Registrar')) driverAttendance();
+                    else if (active.includes('Reporte')) driverReport();
+                    else if (active.includes('Tareas')) driverTasks();
+                    else driverDashboard();
+                } else if (user.role === 'supervisor') {
+                    if (active.includes('Usuarios')) supervisorUsers();
+                    else if (active.includes('Rutas')) supervisorRoutes();
+                    else if (active.includes('Tareas')) supervisorTasks();
+                    else if (active.includes('Reportes')) supervisorReports();
+                    else if (active.includes('Datos')) supervisorData();
+                    else supervisorDashboard();
+                } else if (user.role === 'checker') {
+                    if (active.includes('Historial')) checkerHistory();
+                    else checkerDashboard();
+                }
+            }
+
+            function renderClock() {
+                clockElement.textContent = `⏱️ Simulación: ${getDateText()}  ·  1 segundo = 1 minuto`;
+            }
+
+            function daysInMonth(month, year) {
+                return new Date(year, month + 1, 0).getDate();
+            }
+        })();
+    </script>
+</body>
+</html>
